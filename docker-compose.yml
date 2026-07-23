@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  multicloud-control-plane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - AWS_DEFAULT_REGION=us-east-1
+      - GCP_PROJECT_ID=devopstrio-multicloud-prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
