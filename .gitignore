@@ -1,15 +1,29 @@
+# Byte-compiled / optimized files
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .pytest_cache/
 .coverage
 htmlcov/
 *.log
+*.jsonl
+
+# Environment variables & virtual environments
 .env
 .venv/
+env/
 venv/
+ENV/
+
+# Terraform artifacts
 .terraform/
 *.tfstate
 *.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# Distribution / packaging
 dist/
 build/
+*.egg-info/

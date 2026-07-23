@@ -4,14 +4,33 @@ The **Multi-Cloud Control Plane** provides a unified API, inventory aggregation,
 
 ![Multi-Cloud Control Plane Architecture](images/architecture_diagram.jpg)
 
+## Architectural Overview
+
+The control plane sits above heterogeneous cloud environments to standardize security, compliance, and infrastructure provisioning.
+
+```mermaid
+flowchart TD
+    Client[DevOps / Security Admin] -->|HTTP / REST| API[Control Plane API Server]
+    API --> AWS[AWS Adapter]
+    API --> Azure[Azure Adapter]
+    API --> GCP[GCP Adapter]
+    
+    AWS --> AWS_Res[AWS Resources]
+    Azure --> Azure_Res[Azure Resources]
+    GCP --> GCP_Res[GCP Resources]
+
+    API --> Policy[Cross-Cloud Policy Engine]
+    Policy --> Audit[Compliance Audit Report]
+```
+
 ## Component Breakdown
 
 1. **Central Control Plane API (`src/control_plane/api_server.py`)**
-   - Serves unified endpoints for cross-cloud inventory retrieval and governance reports.
-   - Aggregates resource state across all configured cloud providers.
+   - Serves unified REST endpoints (`/v1/inventory/unified`, `/v1/governance/audit`).
+   - Aggregates resource state across all configured cloud providers with standard Pydantic models.
 
 2. **Cloud Provider Adapters (`src/adapters/`)**
-   - `aws_adapter.py`: Interfaces with AWS APIs (EC2, S3, IAM, Security Groups).
+   - `aws_adapter.py`: Interfaces with AWS APIs (EC2, S3, IAM).
    - `azure_adapter.py`: Interfaces with Azure Resource Manager (VMs, Storage Accounts, NSGs).
    - `gcp_adapter.py`: Interfaces with GCP Resource Manager (Compute Engine, GCS, VPC Firewalls).
 

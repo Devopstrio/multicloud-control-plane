@@ -9,10 +9,13 @@ services:
       - "8000:8000"
     environment:
       - ENVIRONMENT=production
+      - DEBUG=false
       - AWS_DEFAULT_REGION=us-east-1
+      - AZURE_SUBSCRIPTION_ID=00000000-0000-0000-0000-000000000000
       - GCP_PROJECT_ID=devopstrio-multicloud-prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 10s
       timeout: 5s
       retries: 3
+    restart: unless-stopped

@@ -1,6 +1,6 @@
 # Deployment Guide: Multi-Cloud Control Plane
 
-This guide covers deployment options for the Multi-Cloud Control Plane platform.
+This document provides step-by-step instructions to deploy the Multi-Cloud Control Plane service locally, via Docker, and onto cloud infrastructure using Terraform.
 
 ## 1. Local Development Setup
 
@@ -9,35 +9,47 @@ This guide covers deployment options for the Multi-Cloud Control Plane platform.
 git clone https://github.com/Devopstrio/multicloud-control-plane.git
 cd multicloud-control-plane
 
+# Create Python virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
 
-# Launch Control Plane API
-uvicorn src.control_plane.api_server:app --reload --port 8000
+# Run pytest suite
+python -m pytest -v tests/
+
+# Launch Control Plane API Server
+uvicorn src.control_plane.api_server:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 2. Docker Container Deployment
+## 2. Docker & Container Orchestration
 
 ```bash
-# Start container stack
+# Build and run container stack
 docker-compose up -d --build
 
-# Verify API health
+# Verify container health status
+docker-compose ps
 curl http://localhost:8000/healthz
 ```
 
-## 3. Terraform Multi-Cloud Landing Zone Provisioning
+## 3. Terraform Infrastructure Provisioning
 
 ```bash
-# Deploy AWS Landing Zone Hub
+# Deploy AWS Landing Zone Network Hub
 cd terraform/aws
-terraform init && terraform apply -auto-approve
+terraform init
+terraform plan
+terraform apply -auto-approve
 
 # Deploy Azure Landing Zone Hub
 cd ../azure
-terraform init && terraform apply -auto-approve
+terraform init
+terraform apply -auto-approve
 
 # Deploy GCP Landing Zone Hub
 cd ../gcp
-terraform init && terraform apply -auto-approve
+terraform init
+terraform apply -auto-approve
 ```
