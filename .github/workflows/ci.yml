@@ -24,5 +24,7 @@ jobs:
         pip install -r requirements.txt
         
     - name: Run Test Suite
+      env:
+        PYTHONPATH: .
       run: |
-        pytest -v tests/
+        python -m pytest -v tests/
