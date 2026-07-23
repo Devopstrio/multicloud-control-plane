@@ -1,53 +1,71 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class PolicyEnforcer:
     """
     Unified Cross-Cloud Governance Policy Engine.
-    Enforces compliance policies (encryption, tagging, region restrictions) across AWS, Azure, & GCP.
+    Enforces organizational security guardrails (encryption at rest, region locks, mandatory tagging)
+    across heterogeneous multi-cloud environments.
     """
 
-    def __init__(self, allowed_regions: List[str] = None):
-        self.allowed_regions = allowed_regions or ["us-east-1", "us-central1", "eastus", "eu-west-1"]
+    def __init__(self, allowed_regions: Optional[List[str]] = None):
+        self.allowed_regions = allowed_regions or [
+            "us-east-1", "us-central1", "eastus", "eu-west-1", "us-west-2"
+        ]
 
     def enforce_policies(self, inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
-        violations = []
-        compliant_resources = []
+        """
+        Scans multi-cloud resource inventory against enterprise compliance policies.
+        Returns detailed compliance metrics and policy violation objects.
+        """
+        violations: List[Dict[str, Any]] = []
+        compliant_resources: List[str] = []
 
         for resource in inventory:
-            res_id = resource.get("id")
-            provider = resource.get("provider")
+            res_id = resource.get("id", "unknown-resource")
+            provider = resource.get("provider", "unknown-provider")
             encrypted = resource.get("encrypted", False)
-            region = resource.get("region")
+            region = resource.get("region", "unknown")
             tags = resource.get("tags", {})
+
+            res_violations = []
 
             # Rule 1: Mandatory Encryption at Rest
             if not encrypted:
-                violations.append({
+                v = {
                     "resource_id": res_id,
                     "provider": provider,
                     "rule": "MANDATORY_ENCRYPTION_AT_REST",
-                    "severity": "CRITICAL"
-                })
+                    "severity": "CRITICAL",
+                    "description": "Resource lacks required cloud storage/disk encryption."
+                }
+                violations.append(v)
+                res_violations.append(v)
 
-            # Rule 2: Region Restrictions
+            # Rule 2: Geographic Region Lock
             if region not in self.allowed_regions:
-                violations.append({
+                v = {
                     "resource_id": res_id,
                     "provider": provider,
                     "rule": "UNAUTHORIZED_GEOGRAPHIC_REGION",
-                    "severity": "HIGH"
-                })
+                    "severity": "HIGH",
+                    "description": f"Resource deployed in non-approved region '{region}'."
+                }
+                violations.append(v)
+                res_violations.append(v)
 
-            # Rule 3: Environment Tag Requirement
+            # Rule 3: Mandatory Tagging Standard ('Env' tag required)
             if "Env" not in tags:
-                violations.append({
+                v = {
                     "resource_id": res_id,
                     "provider": provider,
                     "rule": "MISSING_MANDATORY_TAG_ENV",
-                    "severity": "MEDIUM"
-                })
+                    "severity": "MEDIUM",
+                    "description": "Resource missing mandatory governance tag 'Env'."
+                }
+                violations.append(v)
+                res_violations.append(v)
 
-            if len([v for v in violations if v["resource_id"] == res_id]) == 0:
+            if len(res_violations) == 0:
                 compliant_resources.append(res_id)
 
         compliance_rate = round((len(compliant_resources) / len(inventory) * 100), 2) if inventory else 100.0
