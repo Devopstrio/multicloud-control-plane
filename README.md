@@ -38,13 +38,17 @@ flowchart TD
         B --> D[Azure Cloud Adapter]
         B --> E[GCP Cloud Adapter]
         
-        C & D & E --> F[Unified Multi-Cloud Inventory]
+        C --> F[Unified Multi-Cloud Inventory]
+        D --> F
+        E --> F
         F --> G[Cross-Cloud Policy Engine]
     end
 
     G -->|2. Audit Compliance Report| B
     B -->|3. Trigger IaC Auto-remediation| H[Terraform / Crossplane Modules]
-    H -->|4. Deploy Landing Zones| I[AWS VPC Hub] & J[Azure Resource Group] & K[GCP VPC Network]
+    H -->|4. Deploy AWS Hub| I[AWS VPC Hub]
+    H -->|4. Deploy Azure Hub| J[Azure Resource Group]
+    H -->|4. Deploy GCP Hub| K[GCP VPC Network]
 ```
 
 ---
